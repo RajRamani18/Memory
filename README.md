@@ -28,9 +28,11 @@ Specification
 - Memory write: `data_in` is written to `memory[addr]` on the positive edge of `clk` when `write = 1`.
 
 Memory Write Cycle
+![Memory Write Cycle](write_cycle.png)
 
 - Memory read: `ata_out`is assigned from `memory[addr]` on the positive edge of `clk` when `read = 1`.
 
 Memory Read Cycle
+![Memory Read Cycle](read_cycle.png)
 
 - `read` and `write` should never be simultaneously high.
