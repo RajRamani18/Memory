@@ -30,9 +30,12 @@ Specification
 Memory Write Cycle
 ![Memory Write Cycle](write_cycle.png)
 
-- Memory read: `ata_out`is assigned from `memory[addr]` on the positive edge of `clk` when `read = 1`.
+- Memory read: `data_out`is assigned from `memory[addr]` on the positive edge of `clk` when `read = 1`.
 
 Memory Read Cycle
 ![Memory Read Cycle](read_cycle.png)
+
+Randomized Data Write and Read
+![Randomize Data Write and Read](random_data_write_read.png)
 
 - `read` and `write` should never be simultaneously high.
