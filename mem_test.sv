@@ -5,6 +5,8 @@ timeunit      1ns;
 timeprecision 1ns;
 
 bit         debug = 1;  //1 - to display each addr and data
+bit         ok;         //Check randomization is successful or not
+logic [7:0] rand_data;  //randmize this var for data
 logic [7:0] rdata;      //stores data read from memory for verification
 
   initial begin
@@ -43,6 +45,17 @@ initial
 
     printstatus(error_status);// print results of test
 
+    $display("Random Data Test");
+    for(int i = 0; i < 32; i++)
+    begin
+        ok = randomize(rand_data) with {rand_data dist {[8'h41:8'h5a] := 4, [8'h61:8'h7a] := 1}; };
+                                                          //A : Z weight 80%    a : z weight 20%
+        busa.write_mem(i, rand_data, debug);
+        busa.read_mem(i, rdata, debug);
+        error_status = checkit(i, rdata, rand_data);
+    end
+    printstatus(error_status);// print results of test
+    
     $finish;
   end
 
