@@ -9,6 +9,27 @@ bit         ok;         //Check randomization is successful or not
 logic [7:0] rand_data;  //randmize this var for data
 logic [7:0] rdata;      //stores data read from memory for verification
 
+typedef enum bit[1:0] {ascii, uc, lc, uclc} control_t;  
+  
+  class memcls;
+        randc bit [4:0] addr; //cyclic randomization 
+        rand  bit [7:0] data; 
+        
+        control_t ctrl;
+        
+        constraint data_dist { ctrl == ascii -> data inside {[8'h20:8'h7F]};
+                               ctrl == uc    -> data inside {[8'h41:8'h5A]};
+                               ctrl == lc    -> data inside {[8'h61:8'h7A]};
+                               ctrl == uclc  -> data dist   {[8'h41:8'h5A] := 4, [8'h61:8'h7A] := 1}; }
+        
+        function new(input int init_addr = 0, input int init_data = 0);
+            addr = init_addr;
+            data = init_data;
+        endfunction
+  endclass
+
+  memcls mem_rnd;  
+  
   initial begin
       $timeformat ( -9, 0, " ns", 9 );  //units_number=ns , precision_number=decimal point , suffix_string , minimum_field_width
       #40000ns $display ( "MEMORY TEST TIMEOUT" );
@@ -45,16 +66,51 @@ initial
 
     printstatus(error_status);// print results of test
 
-    $display("Random Data Test");
-    for(int i = 0; i < 32; i++)
+    mem_rnd = new(0,0);
+    
+    $display("Random Data Test - ASCII");
+    mem_rnd.ctrl = ascii;
+    for (int i = 0; i < 32; i++)
     begin
-        ok = randomize(rand_data) with {rand_data dist {[8'h41:8'h5a] := 4, [8'h61:8'h7a] := 1}; };
-                                                          //A : Z weight 80%    a : z weight 20%
-        busa.write_mem(i, rand_data, debug);
-        busa.read_mem(i, rdata, debug);
-        error_status = checkit(i, rdata, rand_data);
+       ok = mem_rnd.randomize();
+       busa.write_mem (mem_rnd.addr, mem_rnd.data, 1);
+       busa.read_mem  (mem_rnd.addr, rdata, 1);
+       error_status = checkit (mem_rnd.addr, rdata, mem_rnd.data);
     end
-    printstatus(error_status);// print results of test
+    printstatus(error_status);
+
+    $display("Random Data Test - Upper case");
+    mem_rnd.ctrl = uc;
+    for (int i = 0; i < 32; i++)
+    begin
+       ok = mem_rnd.randomize();
+       busa.write_mem (mem_rnd.addr, mem_rnd.data, 1);
+       busa.read_mem  (mem_rnd.addr, rdata, 1);
+       error_status = checkit (mem_rnd.addr, rdata, mem_rnd.data);
+    end
+    printstatus(error_status);
+
+    $display("Random Data Test Lower Case");
+    mem_rnd.ctrl = lc;
+    for (int i = 0; i < 32; i++)
+    begin
+       ok = mem_rnd.randomize();
+       busa.write_mem (mem_rnd.addr, mem_rnd.data, 1);
+       busa.read_mem  (mem_rnd.addr, rdata, 1);
+       error_status = checkit (mem_rnd.addr, rdata, mem_rnd.data);
+    end
+    printstatus(error_status);
+
+    $display("Random Data Test - Upper/Lower case distribution");
+    mem_rnd.ctrl = uclc;
+    for (int i = 0; i < 32; i++)
+    begin
+       ok = mem_rnd.randomize();
+       busa.write_mem (mem_rnd.addr, mem_rnd.data, 1);
+       busa.read_mem  (mem_rnd.addr, rdata, 1);
+       error_status = checkit (mem_rnd.addr, rdata, mem_rnd.data);
+    end
+    printstatus(error_status);
     
     $finish;
   end
