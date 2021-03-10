@@ -35,7 +35,7 @@ Memory Write Cycle
 Memory Read Cycle
 ![Memory Read Cycle](read_cycle.png)
 
-Randomized Data Write and Read
-![Randomize Data Write and Read](random_data_write_read.png)
+Randomized Address & Data with distribution
+![Randomized Address & Data with distribution](mem_cls_rand_uc_lc.png)
 
 - `read` and `write` should never be simultaneously high.
